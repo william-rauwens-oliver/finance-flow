@@ -12,6 +12,27 @@
             <h1>Mon Gestionnaire de Budget</h1>
             <div id="solde">Solde : 0€</div>
         </header>
+
+        <?php
+        try {
+            $conn = new PDO("mysql:host=localhost;dbname=finance-flow", 'root', 'root');
+            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            $categoriesStmt = $conn->query("SELECT * FROM categories");
+            $categories = $categoriesStmt->fetchAll(PDO::FETCH_ASSOC);
+            $sousCategoriesStmt = $conn->query("SELECT * FROM sous_categories");
+            $sousCategories = $sousCategoriesStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $sousCategoriesByCategorie = [];
+            foreach ($sousCategories as $sousCategorie) {
+                $sousCategoriesByCategorie[$sousCategorie['categorie_id']][] = $sousCategorie;
+            }
+
+        } catch (PDOException $e) {
+            echo "Erreur de connexion : " . $e->getMessage();
+        }
+        ?>
+
         <main>
             <section id="ajout-transaction">
                 <h2>Ajouter une Transaction</h2>
@@ -27,17 +48,16 @@
                     <textarea id="description" placeholder="Description"></textarea>
 
                     <label for="categorie">Catégorie :</label>
-                    <select id="categorie" required>
+                    <select id="categorie" name="categorie" required onchange="updateSousCategories()">
                         <option value="">Sélectionnez une catégorie</option>
-                        <option value="1">Alimentaire</option>
-                        <option value="2">Loisirs</option>
+                        <?php foreach ($categories as $categorie): ?>
+                            <option value="<?= $categorie['id'] ?>"><?= htmlspecialchars($categorie['nom']) ?></option>
+                        <?php endforeach; ?>
                     </select>
 
                     <label for="sous-categorie">Sous-catégorie :</label>
-                    <select id="sous-categorie" required>
+                    <select id="sous-categorie" name="sous-categorie" required>
                         <option value="">Sélectionnez une sous-catégorie</option>
-                        <option value="1">Restaurant</option>
-                        <option value="2">Cinéma</option>
                     </select>
 
                     <button type="submit">Ajouter</button>
@@ -48,17 +68,16 @@
                 <h2>Filtres et Tri</h2>
                 <form id="form-filtres">
                     <label for="categorie">Catégorie :</label>
-                    <select id="filtre-categorie">
+                    <select id="filtre-categorie" onchange="updateSousCategoriesFilter()">
                         <option value="">Toutes</option>
-                        <option value="1">Alimentaire</option>
-                        <option value="2">Loisirs</option>
+                        <?php foreach ($categories as $categorie): ?>
+                            <option value="<?= $categorie['id'] ?>"><?= htmlspecialchars($categorie['nom']) ?></option>
+                        <?php endforeach; ?>
                     </select>
 
                     <label for="sous-categorie">Sous-catégorie :</label>
                     <select id="filtre-sous-categorie">
                         <option value="">Toutes</option>
-                        <option value="1">Restaurant</option>
-                        <option value="2">Cinéma</option>
                     </select>
 
                     <label for="date">Date :</label>
@@ -80,7 +99,44 @@
                 <ul id="transactions"></ul>
             </section>
         </main>
+
+        <script>
+            const sousCategoriesByCategorie = <?= json_encode($sousCategoriesByCategorie) ?>;
+
+            function updateSousCategories() {
+                const categorieId = document.getElementById('categorie').value;
+                const sousCategorieSelect = document.getElementById('sous-categorie');
+
+                sousCategorieSelect.innerHTML = '<option value="">Sélectionnez une sous-catégorie</option>';
+
+                if (sousCategoriesByCategorie[categorieId]) {
+                    sousCategoriesByCategorie[categorieId].forEach(function(sousCategorie) {
+                        const option = document.createElement('option');
+                        option.value = sousCategorie.id;
+                        option.textContent = sousCategorie.nom;
+                        sousCategorieSelect.appendChild(option);
+                    });
+                }
+            }
+
+            function updateSousCategoriesFilter() {
+                const categorieId = document.getElementById('filtre-categorie').value;
+                const sousCategorieSelect = document.getElementById('filtre-sous-categorie');
+
+                sousCategorieSelect.innerHTML = '<option value="">Toutes</option>';
+
+                if (sousCategoriesByCategorie[categorieId]) {
+                    sousCategoriesByCategorie[categorieId].forEach(function(sousCategorie) {
+                        const option = document.createElement('option');
+                        option.value = sousCategorie.id;
+                        option.textContent = sousCategorie.nom;
+                        sousCategorieSelect.appendChild(option);
+                    });
+                }
+            }
+        </script>
+
+        <script src="script.js"></script>
     </div>
-    <script src="script.js"></script>
 </body>
 </html>
