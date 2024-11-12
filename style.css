@@ -1,30 +1,132 @@
-/* Style minimaliste */
-body {
-    font-family: Arial, sans-serif;
+* {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
 }
 
-header, main {
-    padding: 1rem;
-    max-width: 600px;
-    margin: auto;
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
 }
 
-form input, form select, form textarea, form button {
+.container {
     width: 100%;
-    padding: 0.5rem;
-    margin-bottom: 1rem;
-    font-size: 1rem;
+    max-width: 600px;
+    padding: 1.5rem;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    margin: 1rem;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+header h1 {
+    font-size: 1.8rem;
+    color: #4a90e2;
 }
 
 #solde {
     font-weight: bold;
+    color: #4a90e2;
+    font-size: 1.2rem;
+    text-align: center;
+    margin: 1rem 0;
 }
 
+/* Formulaires */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+form label {
+    font-weight: bold;
+    color: #4a90e2;
+    margin-top: 1rem;
+}
+
+form input, form select, form textarea, form button {
+    width: 100%;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    outline: none;
+}
+
+form input:focus, form select:focus, form textarea:focus {
+    border-color: #4a90e2;
+}
+
+form button {
+    background-color: #4a90e2;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    border: none;
+}
+
+form button:hover {
+    background-color: #357ABD;
+}
+
+form button:active {
+    background-color: #2C5AA0;
+}
+
+/* Sections */
+section {
+    margin-top: 2rem;
+}
+
+section h2 {
+    font-size: 1.4rem;
+    color: #333;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #4a90e2;
+    padding-bottom: 0.5rem;
+}
+
+/* Liste des transactions */
+#transactions {
+    list-style: none;
+    padding: 0;
+}
+
+#transactions li {
+    background-color: #f9f9f9;
+    padding: 1rem;
+    margin: 0.5rem 0;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#transactions li span {
+    font-weight: bold;
+    color: #4a90e2;
+}
+
+/* Responsive */
 @media (min-width: 600px) {
     body {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
+    }
+
+    header h1 {
+        font-size: 2rem;
     }
 }
