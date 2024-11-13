@@ -1,3 +1,0 @@
-[12-Nov-2024 15:41:04 UTC] Erreur PDO : SQLSTATE[HY000] [1045] Access denied for user 'username'@'localhost' (using password: YES)
-[12-Nov-2024 15:41:47 UTC] Erreur PDO : SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`finance-flow`.`transactions`, CONSTRAINT `transactions_ibfk_1` FOREIGN KEY (`categorie_id`) REFERENCES `categories` (`id`))
-[12-Nov-2024 15:42:44 UTC] Erreur PDO : SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`finance-flow`.`transactions`, CONSTRAINT `transactions_ibfk_1` FOREIGN KEY (`categorie_id`) REFERENCES `categories` (`id`))
