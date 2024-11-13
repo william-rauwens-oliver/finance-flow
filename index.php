@@ -20,12 +20,21 @@
 
             $categoriesStmt = $conn->query("SELECT * FROM categories");
             $categories = $categoriesStmt->fetchAll(PDO::FETCH_ASSOC);
+
             $sousCategoriesStmt = $conn->query("SELECT * FROM sous_categories");
             $sousCategories = $sousCategoriesStmt->fetchAll(PDO::FETCH_ASSOC);
 
             $sousCategoriesByCategorie = [];
             foreach ($sousCategories as $sousCategorie) {
                 $sousCategoriesByCategorie[$sousCategorie['categorie_id']][] = $sousCategorie;
+            }
+
+            $transactionsStmt = $conn->query("SELECT * FROM transactions");
+            $transactions = $transactionsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $solde = 0;
+            foreach ($transactions as $transaction) {
+                $solde += ($transaction['type'] === 'revenu' ? 1 : -1) * $transaction['montant'];
             }
 
         } catch (PDOException $e) {
@@ -96,12 +105,21 @@
 
             <section id="liste-transactions">
                 <h2>Transactions</h2>
-                <ul id="transactions"></ul>
+                <ul id="transactions">
+                    <?php foreach ($transactions as $transaction): ?>
+                        <li>
+                            <?= htmlspecialchars($transaction['date']) ?> - <?= htmlspecialchars($transaction['titre']) ?> : <?= htmlspecialchars($transaction['montant']) ?>€
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
             </section>
         </main>
 
         <script>
             const sousCategoriesByCategorie = <?= json_encode($sousCategoriesByCategorie) ?>;
+            const solde = <?= $solde ?>;
+
+            document.getElementById('solde').textContent = `Solde : ${solde.toFixed(2)}€`;
 
             function updateSousCategories() {
                 const categorieId = document.getElementById('categorie').value;
@@ -133,6 +151,19 @@
                         sousCategorieSelect.appendChild(option);
                     });
                 }
+            }
+
+            async function appliquerFiltres() {
+                const categorie = document.getElementById('filtre-categorie').value;
+                const sousCategorie = document.getElementById('filtre-sous-categorie').value;
+                const date = document.getElementById('filtre-date').value;
+                const triMontant = document.getElementById('tri-montant').value;
+
+                const response = await fetch(`api.php?categorie=${categorie}&sous_categorie=${sousCategorie}&date=${date}&tri_montant=${triMontant}`);
+                const transactions = await response.json();
+
+                const transactionsList = document.getElementById('transactions');
+                transactionsList.innerHTML = transactions.map(tr => `<li>${tr.date} - ${tr.titre} : ${tr.montant}€</li>`).join('');
             }
         </script>
 

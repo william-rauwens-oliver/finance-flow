@@ -1,8 +1,5 @@
 <?php
 header('Content-Type: application/json');
-ini_set('display_errors', 0);
-ini_set('log_errors', 1);
-ini_set('error_log', __DIR__ . '/error_log.txt');
 
 try {
     $conn = new PDO("mysql:host=localhost;dbname=finance-flow", 'root', 'root');
@@ -10,30 +7,36 @@ try {
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data = json_decode(file_get_contents('php://input'), true);
-        $montant = $data['montant'];
-        $date = $data['date'];
-        $lieu = $data['lieu'];
+        
+        if (!isset($data['titre'], $data['montant'], $data['type'], $data['date'], $data['categorie_id'], $data['sous_categorie_id'])) {
+            echo json_encode(['status' => 'error', 'message' => 'Données manquantes pour la transaction']);
+            exit;
+        }
+
         $titre = $data['titre'];
-        $description = $data['description'];
+        $montant = $data['montant'];
         $type = $data['type'];
+        $date = $data['date'];
+        $lieu = $data['lieu'] ?? null;
+        $description = $data['description'] ?? null;
         $categorie_id = $data['categorie_id'];
         $sous_categorie_id = $data['sous_categorie_id'];
 
-        $query = "INSERT INTO transactions (montant, date, lieu, titre, description, type, categorie_id, sous_categorie_id)
-                  VALUES (:montant, :date, :lieu, :titre, :description, :type, :categorie_id, :sous_categorie_id)";
+        $query = "INSERT INTO transactions (titre, montant, type, date, lieu, description, categorie_id, sous_categorie_id) 
+                  VALUES (:titre, :montant, :type, :date, :lieu, :description, :categorie_id, :sous_categorie_id)";
         $stmt = $conn->prepare($query);
         $stmt->execute([
-            'montant' => $montant,
-            'date' => $date,
-            'lieu' => $lieu,
-            'titre' => $titre,
-            'description' => $description,
-            'type' => $type,
-            'categorie_id' => $categorie_id,
-            'sous_categorie_id' => $sous_categorie_id,
+            ':titre' => $titre,
+            ':montant' => $montant,
+            ':type' => $type,
+            ':date' => $date,
+            ':lieu' => $lieu,
+            ':description' => $description,
+            ':categorie_id' => $categorie_id,
+            ':sous_categorie_id' => $sous_categorie_id,
         ]);
 
-        echo json_encode(['status' => 'success']);
+        echo json_encode(['status' => 'success', 'message' => 'Transaction ajoutée avec succès']);
         exit;
     }
 
@@ -43,21 +46,21 @@ try {
 
         if (!empty($_GET['categorie'])) {
             $query .= " AND categorie_id = :categorie";
-            $params['categorie'] = $_GET['categorie'];
+            $params[':categorie'] = $_GET['categorie'];
         }
 
         if (!empty($_GET['sous_categorie'])) {
             $query .= " AND sous_categorie_id = :sous_categorie";
-            $params['sous_categorie'] = $_GET['sous_categorie'];
+            $params[':sous_categorie'] = $_GET['sous_categorie'];
         }
 
         if (!empty($_GET['date'])) {
             $query .= " AND date = :date";
-            $params['date'] = $_GET['date'];
+            $params[':date'] = $_GET['date'];
         }
 
         if (!empty($_GET['tri_montant'])) {
-            $query .= $_GET['tri_montant'] === 'asc' ? " ORDER BY montant ASC" : " ORDER BY montant DESC";
+            $query .= ($_GET['tri_montant'] === 'asc') ? " ORDER BY montant ASC" : " ORDER BY montant DESC";
         } else {
             $query .= " ORDER BY date DESC";
         }
@@ -66,11 +69,11 @@ try {
         $stmt->execute($params);
         $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        echo json_encode($transactions ?: []);
+        echo json_encode($transactions);
         exit;
     }
+    
 } catch (PDOException $e) {
-    error_log("Erreur PDO : " . $e->getMessage());
-    echo json_encode(['status' => 'error', 'message' => 'Erreur interne du serveur']);
+    echo json_encode(['status' => 'error', 'message' => 'Erreur de connexion à la base de données : ' . $e->getMessage()]);
     exit;
 }
