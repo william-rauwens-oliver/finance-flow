@@ -14,7 +14,6 @@ try {
     $conn = new PDO("mysql:host=localhost;dbname=finance-flow", 'root', 'root');
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // Gestion des catégories et sous-catégories
     if (isset($_GET['getCategories'])) {
         $categoriesQuery = "SELECT id, nom FROM categories";
         $categoriesStmt = $conn->query($categoriesQuery);
@@ -38,7 +37,7 @@ try {
     // Partager une transaction
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['shareTransaction'])) {
         $transaction_id = $_POST['transaction_id'];
-        $utilisateur_ids = $_POST['utilisateur_ids']; // tableau d'IDs utilisateurs
+        $utilisateur_ids = $_POST['utilisateur_ids'];
 
         foreach ($utilisateur_ids as $utilisateur_id) {
             $stmt = $conn->prepare("INSERT INTO transactions_partagees (transaction_id, utilisateur_id) VALUES (:transaction_id, :utilisateur_id)");
@@ -49,7 +48,6 @@ try {
         exit;
     }
 
-    // Récupérer les transactions partagées pour un utilisateur donné
     if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['utilisateur_id'])) {
         $utilisateur_id = $_GET['utilisateur_id'];
         $stmt = $conn->prepare("SELECT t.* FROM transactions t
