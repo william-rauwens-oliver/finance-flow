@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './TransactionList.css';
 
 function TransactionList() {
     const [transactions, setTransactions] = useState([]);
@@ -56,42 +57,54 @@ function TransactionList() {
 
     return (
         <div className="transaction-list-container">
-            <h2>Filtres et Tri</h2>
+            <h2 className="transaction-title">Filtres et Tri</h2>
             <form className="filter-form">
-                <label>Catégorie :</label>
-                <select value={categorie} onChange={(e) => setCategorie(e.target.value)}>
-                    <option value="">Toutes</option>
-                    {categories.map((cat) => (
-                        <option key={cat.id} value={cat.id}>{cat.nom}</option>
-                    ))}
-                </select>
+                <div className="form-group">
+                    <label>Catégorie :</label>
+                    <select value={categorie} onChange={(e) => setCategorie(e.target.value)} className="filter-select">
+                        <option value="">Toutes</option>
+                        {categories.map((cat) => (
+                            <option key={cat.id} value={cat.id}>{cat.nom}</option>
+                        ))}
+                    </select>
+                </div>
 
-                <label>Sous-catégorie :</label>
-                <select value={sousCategorie} onChange={(e) => setSousCategorie(e.target.value)} disabled={!categorie}>
-                    <option value="">Toutes</option>
-                    {filteredSousCategories.map((subCat) => (
-                        <option key={subCat.id} value={subCat.id}>{subCat.nom}</option>
-                    ))}
-                </select>
+                <div className="form-group">
+                    <label>Sous-catégorie :</label>
+                    <select value={sousCategorie} onChange={(e) => setSousCategorie(e.target.value)} className="filter-select" disabled={!categorie}>
+                        <option value="">Toutes</option>
+                        {filteredSousCategories.map((subCat) => (
+                            <option key={subCat.id} value={subCat.id}>{subCat.nom}</option>
+                        ))}
+                    </select>
+                </div>
 
-                <label>Date :</label>
-                <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+                <div className="form-group">
+                    <label>Date :</label>
+                    <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="filter-input" />
+                </div>
 
-                <label>Trier par montant :</label>
-                <select value={triMontant} onChange={(e) => setTriMontant(e.target.value)}>
-                    <option value="">Aucun</option>
-                    <option value="asc">Croissant</option>
-                    <option value="desc">Décroissant</option>
-                </select>
+                <div className="form-group">
+                    <label>Trier par montant :</label>
+                    <select value={triMontant} onChange={(e) => setTriMontant(e.target.value)} className="filter-select">
+                        <option value="">Aucun</option>
+                        <option value="asc">Croissant</option>
+                        <option value="desc">Décroissant</option>
+                    </select>
+                </div>
 
-                <button type="button" onClick={appliquerFiltres}>Appliquer les Filtres</button>
+                <button type="button" onClick={appliquerFiltres} className="filter-button">Appliquer les Filtres</button>
             </form>
 
-            <h2>Transactions</h2>
+            <h2 className="transaction-title">Transactions</h2>
             <ul className="transaction-list">
                 {transactions.map((transaction) => (
-                    <li key={transaction.id}>
-                        {transaction.date} - {transaction.titre} : {transaction.montant}€
+                    <li key={transaction.id} className="transaction-item">
+                        <span className="transaction-date">{transaction.date}</span>
+                        <span className="transaction-title">{transaction.titre}</span>
+                        <span className="transaction-amount">
+                            {typeof transaction.montant === 'number' ? transaction.montant.toFixed(2) : parseFloat(transaction.montant).toFixed(2)}€
+                        </span>
                     </li>
                 ))}
             </ul>
