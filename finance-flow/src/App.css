@@ -1,3 +1,4 @@
+/* Reset de base */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -5,8 +6,8 @@
 }
 
 body {
-  font-family: 'Arial', sans-serif;
-  background-color: #f4f4f9;
+  font-family: 'Roboto', sans-serif;
+  background: #f4f4f8;
   color: #333;
   display: flex;
   justify-content: center;
@@ -14,88 +15,108 @@ body {
   min-height: 100vh;
 }
 
-.container {
+/* Conteneur principal */
+.app-container {
   width: 100%;
-  max-width: 600px;
-  padding: 1.5rem;
-  background-color: #fff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  margin: 1rem;
+  max-width: 900px;
+  padding: 2rem;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  animation: fadeIn 0.5s ease;
 }
 
-header {
+/* Animation de fade-in */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* En-tête de l'application */
+.app-header {
   text-align: center;
-  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, #5a67d8, #4a5568);
+  padding: 1.5rem;
+  border-radius: 12px;
+  color: #fff;
 }
 
-header h1 {
-  font-size: 1.8rem;
-  color: #4a90e2;
+.app-header h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
 }
 
 #solde {
   font-weight: bold;
-  color: #4a90e2;
   font-size: 1.2rem;
-  text-align: center;
-  margin: 1rem 0;
 }
 
-/* Formulaires */
-form {
+/* Contenu principal */
+.main-content {
   display: flex;
   flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Conteneur des graphiques */
+.charts-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.charts-container > div {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(31, 38, 135, 0.1);
+  padding: 1.5rem;
+}
+
+/* Formulaire de transaction */
+form {
+  display: grid;
+  gap: 1rem;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 24px rgba(31, 38, 135, 0.1);
 }
 
 form label {
+  font-size: 0.9rem;
+  color: #5a67d8;
   font-weight: bold;
-  color: #4a90e2;
-  margin-top: 1rem;
 }
 
-form input, form select, form textarea, form button {
+form input, form select, form button {
   width: 100%;
   padding: 0.75rem;
-  margin: 0.5rem 0;
   font-size: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  border: none;
+  border-radius: 8px;
   outline: none;
+  background: #f7f7fc;
+  transition: box-shadow 0.3s ease;
 }
 
-form input:focus, form select:focus, form textarea:focus {
-  border-color: #4a90e2;
+form input:focus, form select:focus {
+  box-shadow: 0 4px 16px rgba(90, 103, 216, 0.2);
 }
 
 form button {
-  background-color: #4a90e2;
-  color: white;
+  background-color: #5a67d8;
+  color: #fff;
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  border: none;
 }
 
 form button:hover {
-  background-color: #357ABD;
-}
-
-form button:active {
-  background-color: #2C5AA0;
-}
-
-/* Sections */
-section {
-  margin-top: 2rem;
-}
-
-section h2 {
-  font-size: 1.4rem;
-  color: #333;
-  margin-bottom: 1rem;
-  border-bottom: 2px solid #4a90e2;
-  padding-bottom: 0.5rem;
+  background-color: #4a5568;
 }
 
 /* Liste des transactions */
@@ -105,11 +126,11 @@ section h2 {
 }
 
 #transactions li {
-  background-color: #f9f9f9;
+  background: #ffffff;
   padding: 1rem;
   margin: 0.5rem 0;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -117,16 +138,12 @@ section h2 {
 
 #transactions li span {
   font-weight: bold;
-  color: #4a90e2;
+  color: #5a67d8;
 }
 
 /* Responsive */
-@media (min-width: 600px) {
-  body {
-      font-size: 1.1rem;
-  }
-
-  header h1 {
-      font-size: 2rem;
+@media (max-width: 768px) {
+  .charts-container {
+    grid-template-columns: 1fr;
   }
 }

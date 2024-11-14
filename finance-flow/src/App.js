@@ -48,15 +48,19 @@ function App() {
     }, []);
 
     return (
-        <div className="container">
-            <header>
+        <div className="app-container">
+            <header className="app-header">
                 <h1>Mon Gestionnaire de Budget</h1>
+                <Solde solde={solde} />
             </header>
-            <Solde solde={solde} />
-            <TransactionForm onAddTransaction={handleAddTransaction} />
-            <TransactionList transactions={transactions} />
-            <CategoryChart transactions={transactions} /> {/* Graphique de répartition par catégorie */}
-            <HistoryChart transactions={transactions} />  {/* Graphique de l'historique */}
+            <main className="main-content">
+                <div className="charts-container">
+                    <CategoryChart transactions={transactions} />
+                    <HistoryChart transactions={transactions} />
+                </div>
+                <TransactionForm onAddTransaction={handleAddTransaction} />
+                <TransactionList transactions={transactions} />
+            </main>
         </div>
     );
 }

@@ -7,10 +7,24 @@ function TransactionList() {
     const [sousCategorie, setSousCategorie] = useState('');
     const [date, setDate] = useState('');
     const [triMontant, setTriMontant] = useState('');
+    const [categories, setCategories] = useState([]);
+    const [sousCategories, setSousCategories] = useState([]);
 
+    // Fonction pour récupérer les catégories et sous-catégories
+    const fetchCategories = async () => {
+        try {
+            const response = await axios.get('http://localhost:8888/finance-flow/finance-flow/src/api.php?getCategories=true');
+            setCategories(response.data.categories || []);
+            setSousCategories(response.data.sousCategories || []);
+        } catch (error) {
+            console.error("Erreur lors de la récupération des catégories :", error);
+        }
+    };
+
+    // Fonction pour appliquer les filtres
     const appliquerFiltres = async () => {
         try {
-            const response = await axios.get(`http://localhost:8888/finance-flow/finance-flow/src/api.php`, {
+            const response = await axios.get('http://localhost:8888/finance-flow/finance-flow/src/api.php', {
                 params: {
                     categorie,
                     sous_categorie: sousCategorie,
@@ -24,24 +38,40 @@ function TransactionList() {
         }
     };
 
+    // Charger les catégories et appliquer les filtres au chargement du composant
+    useEffect(() => {
+        fetchCategories();
+        appliquerFiltres();
+    }, []);
+
+    // Mettre à jour les transactions quand les filtres changent
     useEffect(() => {
         appliquerFiltres();
     }, [categorie, sousCategorie, date, triMontant]);
 
+    // Filtrer les sous-catégories en fonction de la catégorie sélectionnée
+    const filteredSousCategories = sousCategories.filter(
+        (sousCategorie) => sousCategorie.categorie_id === parseInt(categorie)
+    );
+
     return (
-        <div>
+        <div className="transaction-list-container">
             <h2>Filtres et Tri</h2>
-            <form>
+            <form className="filter-form">
                 <label>Catégorie :</label>
                 <select value={categorie} onChange={(e) => setCategorie(e.target.value)}>
                     <option value="">Toutes</option>
-                    {/* Mappez les catégories ici */}
+                    {categories.map((cat) => (
+                        <option key={cat.id} value={cat.id}>{cat.nom}</option>
+                    ))}
                 </select>
 
                 <label>Sous-catégorie :</label>
-                <select value={sousCategorie} onChange={(e) => setSousCategorie(e.target.value)}>
+                <select value={sousCategorie} onChange={(e) => setSousCategorie(e.target.value)} disabled={!categorie}>
                     <option value="">Toutes</option>
-                    {/* Mappez les sous-catégories ici */}
+                    {filteredSousCategories.map((subCat) => (
+                        <option key={subCat.id} value={subCat.id}>{subCat.nom}</option>
+                    ))}
                 </select>
 
                 <label>Date :</label>
@@ -58,7 +88,7 @@ function TransactionList() {
             </form>
 
             <h2>Transactions</h2>
-            <ul>
+            <ul className="transaction-list">
                 {transactions.map((transaction) => (
                     <li key={transaction.id}>
                         {transaction.date} - {transaction.titre} : {transaction.montant}€
