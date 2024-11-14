@@ -2,80 +2,80 @@
 
 /* Conteneur principal du formulaire de budget */
 .budget-form-container {
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 2rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    max-width: 500px;
-    margin: 0 auto;
-    animation: fadeIn 0.5s ease;
-  }
-  
-  /* En-tête du formulaire */
-  .budget-form-header {
-    text-align: center;
-    font-size: 1.8rem;
-    color: #5a67d8;
-    font-weight: bold;
-    margin-bottom: 1.5rem;
-  }
-  
-  /* Élément de chaque budget */
-  .budget-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-  }
-  
-  /* Style des labels */
-  .budget-item label {
-    font-size: 0.9rem;
-    color: #4a5568;
-    font-weight: bold;
-  }
-  
-  /* Champ de saisie du budget */
-  .budget-item input {
-    width: 100%;
-    padding: 0.75rem;
-    font-size: 1rem;
-    border: none;
-    border-radius: 8px;
-    background: #f7f7fc;
-    transition: box-shadow 0.3s ease;
-  }
-  
-  .budget-item input:focus {
-    box-shadow: 0 4px 16px rgba(90, 103, 216, 0.2);
-  }
-  
-  /* Bouton de soumission */
-  .budget-submit-btn {
-    padding: 0.75rem;
-    font-size: 1rem;
-    font-weight: bold;
-    color: #ffffff;
-    background-color: #5a67d8;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    width: 100%;
-    margin-top: 1.5rem;
-  }
-  
-  .budget-submit-btn:hover {
-    background-color: #4a5568;
-  }
-  
-  /* Animation pour le formulaire */
-  @keyframes fadeIn {
-    from {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  width: 100%; /* Prend toute la largeur */
+  max-width: 1000px; /* Limite de largeur pour les écrans larges */
+  margin: 0 auto;
+  animation: fadeIn 0.5s ease;
+}
+
+/* En-tête du formulaire */
+.budget-form-header {
+  text-align: center;
+  font-size: 1.8rem;
+  color: #5a67d8;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+}
+
+/* Élément de chaque budget */
+.budget-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Style des labels */
+.budget-item label {
+  font-size: 0.9rem;
+  color: #4a5568;
+  font-weight: bold;
+}
+
+/* Champ de saisie du budget */
+.budget-item input {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  background: #f7f7fc;
+  transition: box-shadow 0.3s ease;
+}
+
+.budget-item input:focus {
+  box-shadow: 0 4px 16px rgba(90, 103, 216, 0.2);
+}
+
+/* Bouton de soumission */
+.budget-submit-btn {
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #ffffff;
+  background-color: #5a67d8;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%; /* Prend toute la largeur */
+  margin-top: 1.5rem;
+}
+
+.budget-submit-btn:hover {
+  background-color: #4a5568;
+}
+
+/* Animation pour le formulaire */
+@keyframes fadeIn {
+  from {
       opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
   }
-  
+  to {
+      opacity: 1;
+  }
+}
