@@ -14,6 +14,7 @@ try {
     $conn = new PDO("mysql:host=localhost;dbname=finance-flow", 'root', 'root');
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+    // Gestion des catégories et sous-catégories
     if (isset($_GET['getCategories'])) {
         $categoriesQuery = "SELECT id, nom FROM categories";
         $categoriesStmt = $conn->query($categoriesQuery);
@@ -27,6 +28,39 @@ try {
         exit;
     }
 
+    // Récupérer les utilisateurs
+    if (isset($_GET['getUtilisateurs'])) {
+        $stmt = $conn->query("SELECT id, nom, email FROM utilisateurs");
+        echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+        exit;
+    }
+
+    // Partager une transaction
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['shareTransaction'])) {
+        $transaction_id = $_POST['transaction_id'];
+        $utilisateur_ids = $_POST['utilisateur_ids']; // tableau d'IDs utilisateurs
+
+        foreach ($utilisateur_ids as $utilisateur_id) {
+            $stmt = $conn->prepare("INSERT INTO transactions_partagees (transaction_id, utilisateur_id) VALUES (:transaction_id, :utilisateur_id)");
+            $stmt->execute([':transaction_id' => $transaction_id, ':utilisateur_id' => $utilisateur_id]);
+        }
+
+        echo json_encode(['status' => 'success', 'message' => 'Transaction partagée avec succès']);
+        exit;
+    }
+
+    // Récupérer les transactions partagées pour un utilisateur donné
+    if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['utilisateur_id'])) {
+        $utilisateur_id = $_GET['utilisateur_id'];
+        $stmt = $conn->prepare("SELECT t.* FROM transactions t
+                                INNER JOIN transactions_partagees tp ON t.id = tp.transaction_id
+                                WHERE tp.utilisateur_id = :utilisateur_id");
+        $stmt->execute([':utilisateur_id' => $utilisateur_id]);
+        echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+        exit;
+    }
+
+    // Récupérer les transactions avec filtres
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $query = "SELECT * FROM transactions WHERE 1=1";
         $params = [];
@@ -60,6 +94,7 @@ try {
         exit;
     }
 
+    // Ajouter une transaction
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data = json_decode(file_get_contents("php://input"), true);
         $titre = $data['titre'] ?? '';
@@ -86,6 +121,7 @@ try {
         exit;
     }
 
+    // Mettre à jour une transaction
     if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
         $data = json_decode(file_get_contents("php://input"), true);
         $id = $data['id'] ?? null;
@@ -116,6 +152,7 @@ try {
         exit;
     }
 
+    // Supprimer une transaction
     if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
         $id = $_GET['id'] ?? null;
         if ($id) {

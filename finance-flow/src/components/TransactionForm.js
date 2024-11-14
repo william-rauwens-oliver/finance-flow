@@ -12,25 +12,26 @@ function TransactionForm({ onAddTransaction }) {
     const [sousCategories, setSousCategories] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('');
     const [selectedSousCategorie, setSelectedSousCategorie] = useState('');
+    const [utilisateurs, setUtilisateurs] = useState([]);
+    const [selectedUtilisateurs, setSelectedUtilisateurs] = useState([]);
 
     useEffect(() => {
         const fetchCategories = async () => {
-            try {
-                const response = await axios.get('http://localhost:8888/finance-flow/finance-flow/src/api.php?getCategories=true');
-                setCategories(response.data.categories || []);
-                setSousCategories(response.data.sousCategories || []);
-            } catch (error) {
-                console.error("Erreur lors de la récupération des catégories :", error);
-            }
+            const response = await axios.get('http://localhost:8888/finance-flow/finance-flow/src/api.php?getCategories=true');
+            setCategories(response.data.categories || []);
+            setSousCategories(response.data.sousCategories || []);
         };
+
+        const fetchUtilisateurs = async () => {
+            const response = await axios.get('http://localhost:8888/finance-flow/finance-flow/src/api.php?getUtilisateurs=true');
+            setUtilisateurs(response.data || []);
+        };
+
         fetchCategories();
+        fetchUtilisateurs();
     }, []);
 
-    const filteredSousCategories = sousCategories.filter(
-        (sousCategorie) => sousCategorie.categorie_id === parseInt(selectedCategory)
-    );
-
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const transaction = {
             titre,
@@ -42,18 +43,23 @@ function TransactionForm({ onAddTransaction }) {
             categorie_id: selectedCategory,
             sous_categorie_id: selectedSousCategorie
         };
-        onAddTransaction(transaction);
-        setTitre('');
-        setMontant('');
-        setDate('');
-        setLieu('');
-        setDescription('');
-        setSelectedCategory('');
-        setSelectedSousCategorie('');
+
+        const response = await axios.post('http://localhost:8888/finance-flow/finance-flow/src/api.php', transaction);
+        if (response.data.status === 'success') {
+            // Partager la transaction avec les utilisateurs sélectionnés
+            await axios.post('http://localhost:8888/finance-flow/finance-flow/src/api.php', {
+                shareTransaction: true,
+                transaction_id: response.data.transaction_id,
+                utilisateur_ids: selectedUtilisateurs
+            });
+            alert('Transaction ajoutée et partagée');
+            onAddTransaction();
+        }
     };
 
     return (
         <form onSubmit={handleSubmit}>
+            {/* Formulaire pour ajouter une transaction */}
             <input type="text" value={titre} onChange={(e) => setTitre(e.target.value)} placeholder="Titre" required />
             <input type="number" value={montant} onChange={(e) => setMontant(e.target.value)} placeholder="Montant" required />
             <select value={type} onChange={(e) => setType(e.target.value)}>
@@ -75,12 +81,19 @@ function TransactionForm({ onAddTransaction }) {
             <label>Sous-catégorie :</label>
             <select value={selectedSousCategorie} onChange={(e) => setSelectedSousCategorie(e.target.value)} required>
                 <option value="">Sélectionnez une sous-catégorie</option>
-                {filteredSousCategories.map((sousCategorie) => (
+                {sousCategories.map((sousCategorie) => (
                     <option key={sousCategorie.id} value={sousCategorie.id}>{sousCategorie.nom}</option>
                 ))}
             </select>
 
-            <button type="submit">Ajouter</button>
+            <label>Partager avec :</label>
+            <select multiple value={selectedUtilisateurs} onChange={(e) => setSelectedUtilisateurs([...e.target.selectedOptions].map(option => option.value))}>
+                {utilisateurs.map((user) => (
+                    <option key={user.id} value={user.id}>{user.nom}</option>
+                ))}
+            </select>
+
+            <button type="submit">Ajouter et Partager</button>
         </form>
     );
 }
