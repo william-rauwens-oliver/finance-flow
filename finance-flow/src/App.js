@@ -5,14 +5,14 @@ import TransactionList from './components/TransactionList';
 import Solde from './components/Solde';
 import CategoryChart from './components/CategoryChart';
 import HistoryChart from './components/HistoryChart';
+import BudgetForm from './components/BudgetForm';
 import './App.css';
-import './chartConfig';
 
 function App() {
     const [transactions, setTransactions] = useState([]);
     const [solde, setSolde] = useState(0);
+    const [budgets, setBudgets] = useState({});
 
-    // Récupérer les transactions depuis l'API
     const fetchTransactions = async () => {
         try {
             const response = await axios.get('http://localhost:8888/finance-flow/finance-flow/src/api.php');
@@ -23,18 +23,26 @@ function App() {
         }
     };
 
-    // Calculer le solde en fonction des transactions
+    const fetchBudgets = async () => {
+        try {
+            const response = await axios.get('http://localhost:8888/finance-flow/finance-flow/src/api.php?getBudgets=true');
+            const budgetData = response.data.reduce((acc, { categorie_id, budget }) => ({ ...acc, [categorie_id]: budget }), {});
+            setBudgets(budgetData);
+        } catch (error) {
+            console.error("Erreur lors de la récupération des budgets :", error);
+        }
+    };
+
     const calculateSolde = (transactions) => {
         const total = transactions.reduce((acc, tr) => acc + (tr.type === 'revenu' ? parseFloat(tr.montant) : -parseFloat(tr.montant)), 0);
         setSolde(total);
     };
 
-    // Ajouter une transaction et mettre à jour la liste
     const handleAddTransaction = async (transaction) => {
         try {
             const response = await axios.post('http://localhost:8888/finance-flow/finance-flow/src/api.php', transaction);
             if (response.data.status === 'success') {
-                fetchTransactions();  // Rafraîchir les transactions après ajout
+                fetchTransactions();
             } else {
                 alert(response.data.message);
             }
@@ -45,6 +53,7 @@ function App() {
 
     useEffect(() => {
         fetchTransactions();
+        fetchBudgets();
     }, []);
 
     return (
@@ -55,9 +64,10 @@ function App() {
             </header>
             <main className="main-content">
                 <div className="charts-container">
-                    <CategoryChart transactions={transactions} />
+                    <CategoryChart transactions={transactions} budgets={budgets} />
                     <HistoryChart transactions={transactions} />
                 </div>
+                <BudgetForm />
                 <TransactionForm onAddTransaction={handleAddTransaction} />
                 <TransactionList transactions={transactions} />
             </main>
