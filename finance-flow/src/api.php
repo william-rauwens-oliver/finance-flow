@@ -14,7 +14,6 @@ try {
     $conn = new PDO("mysql:host=localhost;dbname=finance-flow", 'root', 'root');
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // Gestion des requêtes pour récupérer les catégories et sous-catégories
     if (isset($_GET['getCategories'])) {
         $categoriesQuery = "SELECT id, nom FROM categories";
         $categoriesStmt = $conn->query($categoriesQuery);
@@ -28,7 +27,6 @@ try {
         exit;
     }
 
-    // Gestion des requêtes GET pour récupérer les transactions
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $query = "SELECT * FROM transactions WHERE 1=1";
         $params = [];
@@ -62,7 +60,6 @@ try {
         exit;
     }
 
-    // Gestion des requêtes POST pour ajouter une transaction
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data = json_decode(file_get_contents("php://input"), true);
         $titre = $data['titre'] ?? '';
@@ -89,7 +86,6 @@ try {
         exit;
     }
 
-    // Gestion des requêtes PUT pour mettre à jour une transaction
     if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
         $data = json_decode(file_get_contents("php://input"), true);
         $id = $data['id'] ?? null;
@@ -120,7 +116,6 @@ try {
         exit;
     }
 
-    // Gestion des requêtes DELETE pour supprimer une transaction
     if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
         $id = $_GET['id'] ?? null;
         if ($id) {
@@ -134,7 +129,6 @@ try {
         exit;
     }
 
-    // Réponse par défaut pour les autres méthodes de requête non prises en charge
     echo json_encode(['status' => 'error', 'message' => 'Méthode de requête non prise en charge']);
 
 } catch (PDOException $e) {

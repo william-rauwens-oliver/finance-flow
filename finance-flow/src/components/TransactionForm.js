@@ -13,7 +13,6 @@ function TransactionForm({ onAddTransaction }) {
     const [selectedCategory, setSelectedCategory] = useState('');
     const [selectedSousCategorie, setSelectedSousCategorie] = useState('');
 
-    // Récupérer les catégories et sous-catégories depuis l'API
     useEffect(() => {
         const fetchCategories = async () => {
             try {
@@ -27,12 +26,10 @@ function TransactionForm({ onAddTransaction }) {
         fetchCategories();
     }, []);
 
-    // Filtrer les sous-catégories en fonction de la catégorie sélectionnée
     const filteredSousCategories = sousCategories.filter(
         (sousCategorie) => sousCategorie.categorie_id === parseInt(selectedCategory)
     );
 
-    // Gestion de l'ajout d'une transaction
     const handleSubmit = (e) => {
         e.preventDefault();
         const transaction = {

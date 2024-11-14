@@ -1,4 +1,3 @@
-/* Reset de base */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -16,7 +15,6 @@ body {
   padding: 20px;
 }
 
-/* Conteneur principal */
 .app-container {
   width: 100%;
   max-width: 900px;
@@ -30,13 +28,11 @@ body {
   animation: fadeIn 0.5s ease;
 }
 
-/* Animation de fade-in */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-/* En-tête de l'application */
 .app-header {
   text-align: center;
   background: linear-gradient(135deg, #5a67d8, #4a5568);
@@ -56,14 +52,12 @@ body {
   font-size: 1.2rem;
 }
 
-/* Contenu principal */
 .main-content {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-/* Conteneur des graphiques */
 .charts-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -179,7 +173,6 @@ form button:hover {
   box-shadow: 0 4px 16px rgba(90, 103, 216, 0.2);
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .charts-container {
     grid-template-columns: 1fr;

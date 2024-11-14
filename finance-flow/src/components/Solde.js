@@ -1,4 +1,3 @@
-// src/components/Solde.js
 
 import React from 'react';
 

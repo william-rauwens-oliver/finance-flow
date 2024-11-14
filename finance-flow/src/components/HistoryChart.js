@@ -3,18 +3,15 @@ import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS } from 'chart.js/auto';
 
 function HistoryChart({ transactions }) {
-    // Préparer les données pour l'historique des transactions
     const transactionDates = transactions.map((t) => t.date);
     const transactionAmounts = transactions.map((t) => t.montant);
 
-    // Calculer le solde cumulatif
     let cumulativeBalance = 0;
     const cumulativeBalances = transactions.map((t) => {
         cumulativeBalance += t.type === 'revenu' ? parseFloat(t.montant) : -parseFloat(t.montant);
         return cumulativeBalance;
     });
 
-    // Configuration pour le graphique de l'historique des transactions
     const transactionData = {
         labels: transactionDates,
         datasets: [
@@ -29,7 +26,6 @@ function HistoryChart({ transactions }) {
         ],
     };
 
-    // Configuration pour le graphique du solde cumulatif
     const cumulativeData = {
         labels: transactionDates,
         datasets: [
@@ -61,7 +57,7 @@ function HistoryChart({ transactions }) {
                     },
                     elements: {
                         line: {
-                            fill: true,  // Força explicitement le remplissage
+                            fill: true,
                         },
                     },
                 }} />
