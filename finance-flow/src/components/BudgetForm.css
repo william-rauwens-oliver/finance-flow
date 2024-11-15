@@ -1,12 +1,11 @@
-
 .budget-form-container {
   background: #ffffff;
   border-radius: 16px;
   padding: 2rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  width: 100%;
+  width: 90%; /* Largeur adaptable */
   max-width: 1000px;
-  margin: 0 auto;
+  margin: 2rem auto;
   animation: fadeIn 0.5s ease;
 }
 
@@ -63,11 +62,59 @@
   background-color: #4a5568;
 }
 
+/* Animation */
 @keyframes fadeIn {
   from {
       opacity: 0;
   }
   to {
       opacity: 1;
+  }
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .budget-form-container {
+    padding: 1.5rem;
+    margin: 1.5rem auto;
+  }
+
+  .budget-form-header {
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+  }
+
+  .budget-item input {
+    padding: 0.65rem;
+    font-size: 0.95rem;
+  }
+
+  .budget-submit-btn {
+    padding: 0.7rem;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .budget-form-container {
+    padding: 1rem;
+  }
+
+  .budget-form-header {
+    font-size: 1.4rem;
+  }
+
+  .budget-item label {
+    font-size: 0.85rem;
+  }
+
+  .budget-item input {
+    padding: 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  .budget-submit-btn {
+    padding: 0.6rem;
+    font-size: 0.9rem;
   }
 }

@@ -1,10 +1,11 @@
 .transaction-list-container {
-    width: 100%;
+    width: 90%; /* Ajuste automatiquement à la largeur de l'écran */
     padding: 2rem;
     background-color: #ffffff;
     border-radius: 16px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    margin: 1rem 0;
+    margin: 1rem auto;
+    max-width: 900px; /* Largeur maximale sur les écrans larges */
 }
 
 .transaction-title {
@@ -62,11 +63,12 @@
 
 .transaction-item {
     display: flex;
+    flex-wrap: wrap; /* Permet de réorganiser les éléments sur petits écrans */
     justify-content: space-between;
     align-items: center;
     background-color: #ffffff;
     margin-bottom: 0.75rem;
-    padding: 1rem;
+    padding: 1rem 2rem;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -80,13 +82,14 @@
 .transaction-date {
     font-size: 0.9rem;
     color: #666;
+    flex: 1 1 100%; /* Prenez la largeur totale sur petits écrans */
 }
 
 .transaction-title {
     font-size: 1rem;
     font-weight: 500;
     color: #333;
-    flex: 1;
+    flex: 1 1 60%; /* Réduction sur écrans étroits */
     text-align: left;
     padding: 0 1rem;
 }
@@ -95,35 +98,14 @@
     font-size: 1.1rem;
     font-weight: bold;
     color: #5a67d8;
+    flex: 1 1 40%; /* Réduction pour s'adapter aux petits écrans */
+    text-align: right;
 }
-
-.transaction-list-container {
-    width: 100%;
-    padding: 2rem;
-    background-color: #ffffff;
-    border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    margin: 1rem auto;
-    max-width: 900px;
-}
-
-
-.transaction-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #ffffff;
-    margin-bottom: 0.75rem;
-    padding: 1rem 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
 
 .transaction-actions {
     display: flex;
     gap: 0.5rem;
+    margin-top: 1rem; /* Ajoute un espace pour les petits écrans */
 }
 
 .edit-button, .delete-button {
@@ -134,7 +116,6 @@
     border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    margin: 0 0.25rem;
 }
 
 .edit-button {
@@ -155,4 +136,38 @@
 .delete-button:hover {
     background-color: #c53030;
     box-shadow: 0 4px 12px rgba(229, 62, 62, 0.2);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .transaction-item {
+        flex-direction: column; /* Aligne les éléments verticalement sur petits écrans */
+        padding: 1rem;
+    }
+
+    .transaction-title, .transaction-amount {
+        flex: 1 1 100%; /* Chaque élément occupe toute la largeur */
+        text-align: center;
+    }
+
+    .transaction-actions {
+        justify-content: center;
+        width: 100%; /* S'aligne au centre sur petits écrans */
+    }
+}
+
+@media (max-width: 480px) {
+    .filter-form {
+        flex-direction: column; /* Formulaire en colonne sur très petits écrans */
+        gap: 0.75rem;
+    }
+
+    .transaction-list-container {
+        padding: 1.5rem;
+    }
+
+    .edit-button, .delete-button {
+        font-size: 0.8rem;
+        padding: 0.5rem;
+    }
 }
