@@ -14,6 +14,7 @@ try {
     $conn = new PDO("mysql:host=localhost;dbname=finance-flow", 'root', 'root');
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+    // Récupérer les catégories et sous-catégories
     if (isset($_GET['getCategories'])) {
         $categoriesQuery = "SELECT id, nom FROM categories";
         $categoriesStmt = $conn->query($categoriesQuery);
@@ -48,13 +49,38 @@ try {
         exit;
     }
 
-    if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['utilisateur_id'])) {
-        $utilisateur_id = $_GET['utilisateur_id'];
-        $stmt = $conn->prepare("SELECT t.* FROM transactions t
-                                INNER JOIN transactions_partagees tp ON t.id = tp.transaction_id
-                                WHERE tp.utilisateur_id = :utilisateur_id");
-        $stmt->execute([':utilisateur_id' => $utilisateur_id]);
+    // Récupérer les budgets existants
+    if (isset($_GET['getBudgets'])) {
+        $stmt = $conn->query("SELECT categorie_id, budget FROM budgets");
         echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+        exit;
+    }
+
+    // Ajouter ou mettre à jour un budget pour une catégorie
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'updateBudget') {
+        $categoryId = $_POST['categoryId'] ?? null;
+        $budget = $_POST['budget'] ?? null;
+
+        if ($categoryId && $budget !== null) {
+            // Vérifier si le budget existe déjà
+            $stmt = $conn->prepare("SELECT * FROM budgets WHERE categorie_id = :categorie_id");
+            $stmt->execute([':categorie_id' => $categoryId]);
+            $existingBudget = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($existingBudget) {
+                // Mettre à jour le budget existant
+                $updateStmt = $conn->prepare("UPDATE budgets SET budget = :budget WHERE categorie_id = :categorie_id");
+                $updateStmt->execute([':budget' => $budget, ':categorie_id' => $categoryId]);
+            } else {
+                // Insérer un nouveau budget
+                $insertStmt = $conn->prepare("INSERT INTO budgets (categorie_id, budget) VALUES (:categorie_id, :budget)");
+                $insertStmt->execute([':categorie_id' => $categoryId, ':budget' => $budget]);
+            }
+
+            echo json_encode(['status' => 'success', 'message' => 'Budget mis à jour ou ajouté avec succès']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Données manquantes pour mettre à jour le budget']);
+        }
         exit;
     }
 
@@ -165,9 +191,7 @@ try {
     }
 
     echo json_encode(['status' => 'error', 'message' => 'Méthode de requête non prise en charge']);
-
 } catch (PDOException $e) {
     echo json_encode(['status' => 'error', 'message' => 'Erreur de connexion à la base de données : ' . $e->getMessage()]);
     exit;
 }
-?>
