@@ -14,7 +14,6 @@ try {
     $conn = new PDO("mysql:host=localhost;dbname=finance-flow", 'root', 'root');
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // Récupérer les catégories et sous-catégories
     if (isset($_GET['getCategories'])) {
         $categoriesQuery = "SELECT id, nom FROM categories";
         $categoriesStmt = $conn->query($categoriesQuery);
@@ -28,14 +27,12 @@ try {
         exit;
     }
 
-    // Récupérer les utilisateurs
     if (isset($_GET['getUtilisateurs'])) {
         $stmt = $conn->query("SELECT id, nom, email FROM utilisateurs");
         echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
         exit;
     }
 
-    // Partager une transaction
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['shareTransaction'])) {
         $transaction_id = $_POST['transaction_id'];
         $utilisateur_ids = $_POST['utilisateur_ids'];
@@ -49,30 +46,25 @@ try {
         exit;
     }
 
-    // Récupérer les budgets existants
     if (isset($_GET['getBudgets'])) {
         $stmt = $conn->query("SELECT categorie_id, budget FROM budgets");
         echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
         exit;
     }
 
-    // Ajouter ou mettre à jour un budget pour une catégorie
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'updateBudget') {
         $categoryId = $_POST['categoryId'] ?? null;
         $budget = $_POST['budget'] ?? null;
 
         if ($categoryId && $budget !== null) {
-            // Vérifier si le budget existe déjà
             $stmt = $conn->prepare("SELECT * FROM budgets WHERE categorie_id = :categorie_id");
             $stmt->execute([':categorie_id' => $categoryId]);
             $existingBudget = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($existingBudget) {
-                // Mettre à jour le budget existant
                 $updateStmt = $conn->prepare("UPDATE budgets SET budget = :budget WHERE categorie_id = :categorie_id");
                 $updateStmt->execute([':budget' => $budget, ':categorie_id' => $categoryId]);
             } else {
-                // Insérer un nouveau budget
                 $insertStmt = $conn->prepare("INSERT INTO budgets (categorie_id, budget) VALUES (:categorie_id, :budget)");
                 $insertStmt->execute([':categorie_id' => $categoryId, ':budget' => $budget]);
             }
@@ -84,7 +76,6 @@ try {
         exit;
     }
 
-    // Récupérer les transactions avec filtres
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $query = "SELECT * FROM transactions WHERE 1=1";
         $params = [];
@@ -118,7 +109,6 @@ try {
         exit;
     }
 
-    // Ajouter une transaction
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data = json_decode(file_get_contents("php://input"), true);
         $titre = $data['titre'] ?? '';
@@ -145,7 +135,6 @@ try {
         exit;
     }
 
-    // Mettre à jour une transaction
     if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
         $data = json_decode(file_get_contents("php://input"), true);
         $id = $data['id'] ?? null;
@@ -176,7 +165,6 @@ try {
         exit;
     }
 
-    // Supprimer une transaction
     if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
         $id = $_GET['id'] ?? null;
         if ($id) {
