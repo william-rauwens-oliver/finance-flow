@@ -12,19 +12,24 @@ function TransactionForm({ onAddTransaction }) {
     const [sousCategories, setSousCategories] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('');
     const [selectedSousCategorie, setSelectedSousCategorie] = useState('');
+    const [utilisateurs, setUtilisateurs] = useState([]);
+    const [selectedUtilisateurs, setSelectedUtilisateurs] = useState([]);
 
     useEffect(() => {
-        const fetchCategories = async () => {
+        const fetchData = async () => {
             try {
-                const response = await axios.get('http://localhost:8888/finance-flow/finance-flow/src/api.php?getCategories=true');
-                setCategories(response.data.categories || []);
-                setSousCategories(response.data.sousCategories || []);
+                const categoriesResponse = await axios.get('http://localhost:8888/finance-flow/finance-flow/src/api.php?getCategories=true');
+                setCategories(categoriesResponse.data.categories || []);
+                setSousCategories(categoriesResponse.data.sousCategories || []);
+
+                const utilisateursResponse = await axios.get('http://localhost:8888/finance-flow/finance-flow/src/api.php?getUtilisateurs=true');
+                setUtilisateurs(utilisateursResponse.data || []);
             } catch (error) {
-                console.error("Erreur lors de la récupération des catégories :", error);
+                console.error("Erreur lors de la récupération des données :", error);
             }
         };
 
-        fetchCategories();
+        fetchData();
     }, []);
 
     const handleSubmit = async (e) => {
@@ -49,8 +54,20 @@ function TransactionForm({ onAddTransaction }) {
         try {
             const response = await axios.post('http://localhost:8888/finance-flow/finance-flow/src/api.php', transaction);
             if (response.data.status === 'success') {
-                console.log("Transaction ajoutée avec succès");
-                onAddTransaction(); // Rappel pour mettre à jour la liste
+                const transactionId = response.data.transaction_id;
+
+                // Partager la transaction si des utilisateurs sont sélectionnés
+                if (selectedUtilisateurs.length > 0) {
+                    await axios.post('http://localhost:8888/finance-flow/finance-flow/src/api.php', {
+                        shareTransaction: true,
+                        transaction_id: transactionId,
+                        utilisateur_ids: selectedUtilisateurs
+                    });
+                    console.log("Transaction partagée avec succès.");
+                }
+
+                console.log("Transaction ajoutée avec succès.");
+                onAddTransaction();
             } else {
                 console.warn("Erreur détectée :", response.data.message);
             }
@@ -59,7 +76,6 @@ function TransactionForm({ onAddTransaction }) {
         }
     };
 
-    // Filtrer les sous-catégories en fonction de la catégorie sélectionnée
     const filteredSousCategories = sousCategories.filter(
         (sousCategorie) => sousCategorie.categorie_id === parseInt(selectedCategory)
     );
@@ -127,6 +143,19 @@ function TransactionForm({ onAddTransaction }) {
                 {filteredSousCategories.map((sousCategorie) => (
                     <option key={sousCategorie.id} value={sousCategorie.id}>
                         {sousCategorie.nom}
+                    </option>
+                ))}
+            </select>
+
+            <label>Partager avec :</label>
+            <select
+                multiple
+                value={selectedUtilisateurs}
+                onChange={(e) => setSelectedUtilisateurs([...e.target.selectedOptions].map(option => option.value))}
+            >
+                {utilisateurs.map((user) => (
+                    <option key={user.id} value={user.id}>
+                        {user.nom}
                     </option>
                 ))}
             </select>

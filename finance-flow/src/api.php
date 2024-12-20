@@ -35,20 +35,6 @@ try {
         exit;
     }
 
-    // Partage de transactions
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['shareTransaction'])) {
-        $transaction_id = $_POST['transaction_id'];
-        $utilisateur_ids = $_POST['utilisateur_ids'];
-
-        foreach ($utilisateur_ids as $utilisateur_id) {
-            $stmt = $conn->prepare("INSERT INTO transactions_partagees (transaction_id, utilisateur_id) VALUES (:transaction_id, :utilisateur_id)");
-            $stmt->execute([':transaction_id' => $transaction_id, ':utilisateur_id' => $utilisateur_id]);
-        }
-
-        echo json_encode(['status' => 'success']);
-        exit;
-    }
-
     // Gestion des budgets
     if (isset($_GET['getBudgets'])) {
         $stmt = $conn->query("SELECT categorie_id, budget FROM budgets");
@@ -139,12 +125,33 @@ try {
         $stmt->bindParam(':sous_categorie_id', $sous_categorie_id);
         $stmt->execute();
 
-        echo json_encode(['status' => 'success']);
+        echo json_encode(['status' => 'success', 'transaction_id' => $conn->lastInsertId()]);
         exit;
     }
 
+    // Suppression d'une transaction
+    if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+        $input = json_decode(file_get_contents("php://input"), true); // Récupérer les données JSON
+        $id = $input['id'] ?? null;
+
+        if ($id) {
+            try {
+                $stmt = $conn->prepare("DELETE FROM transactions WHERE id = :id");
+                $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+                $stmt->execute();
+
+                echo json_encode(['status' => 'success', 'message' => 'Transaction supprimée avec succès']);
+            } catch (PDOException $e) {
+                echo json_encode(['status' => 'error', 'message' => 'Erreur lors de la suppression de la transaction']);
+            }
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'ID de transaction manquant']);
+        }
+        exit;
+    }
+
+    echo json_encode(['status' => 'error', 'message' => 'Méthode de requête non prise en charge']);
 } catch (PDOException $e) {
-    // Ne rien renvoyer d'explicite pour éviter les pop-ups côté frontend
-    echo json_encode(['status' => 'error']);
+    echo json_encode(['status' => 'error', 'message' => 'Erreur de connexion à la base de données']);
     exit;
 }

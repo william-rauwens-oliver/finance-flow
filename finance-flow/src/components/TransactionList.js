@@ -42,9 +42,16 @@ function TransactionList() {
     // Fonction pour supprimer une transaction
     const deleteTransaction = async (id) => {
         try {
-            await axios.delete(`http://localhost:8888/finance-flow/finance-flow/src/api.php?id=${id}`);
-            setTransactions(transactions.filter((transaction) => transaction.id !== id));
-            alert('Transaction supprimée avec succès.');
+            const response = await axios.delete('http://localhost:8888/finance-flow/finance-flow/src/api.php', {
+                data: { id }, // Passe l'ID dans le corps de la requête
+            });
+            if (response.data.status === 'success') {
+                // Met à jour la liste des transactions côté frontend
+                setTransactions(transactions.filter((transaction) => transaction.id !== id));
+                alert('Transaction supprimée avec succès.');
+            } else {
+                console.error("Erreur API :", response.data.message);
+            }
         } catch (error) {
             console.error("Erreur lors de la suppression de la transaction :", error);
         }
