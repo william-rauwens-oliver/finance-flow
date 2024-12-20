@@ -31,7 +31,7 @@ function CategoryChart({ transactions, budgets }) {
 
     return (
         <div>
-            <h2>Répartition des Dépenses par Catégorie</h2>
+            <h2>Répartition des Dépenses et des Revenues par Catégorie</h2>
             <Pie data={chartData} />
         </div>
     );
