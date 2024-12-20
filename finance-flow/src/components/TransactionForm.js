@@ -31,7 +31,7 @@ function TransactionForm({ onAddTransaction }) {
         e.preventDefault();
 
         if (!selectedCategory) {
-            alert("Veuillez sélectionner une catégorie.");
+            console.warn("Catégorie non sélectionnée.");
             return;
         }
 
@@ -49,10 +49,10 @@ function TransactionForm({ onAddTransaction }) {
         try {
             const response = await axios.post('http://localhost:8888/finance-flow/finance-flow/src/api.php', transaction);
             if (response.data.status === 'success') {
-                alert('Transaction ajoutée');
-                onAddTransaction();
+                console.log("Transaction ajoutée avec succès");
+                onAddTransaction(); // Rappel pour mettre à jour la liste
             } else {
-                alert(response.data.message);
+                console.warn("Erreur détectée :", response.data.message);
             }
         } catch (error) {
             console.error("Erreur lors de l'ajout de la transaction :", error);

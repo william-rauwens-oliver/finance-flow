@@ -45,7 +45,7 @@ try {
             $stmt->execute([':transaction_id' => $transaction_id, ':utilisateur_id' => $utilisateur_id]);
         }
 
-        echo json_encode(['status' => 'success', 'message' => 'Transaction partagée avec succès']);
+        echo json_encode(['status' => 'success']);
         exit;
     }
 
@@ -73,11 +73,8 @@ try {
                 $insertStmt = $conn->prepare("INSERT INTO budgets (categorie_id, budget) VALUES (:categorie_id, :budget)");
                 $insertStmt->execute([':categorie_id' => $categoryId, ':budget' => $budget]);
             }
-
-            echo json_encode(['status' => 'success', 'message' => 'Budget mis à jour ou ajouté avec succès']);
-        } else {
-            echo json_encode(['status' => 'error', 'message' => 'Données manquantes pour mettre à jour le budget']);
         }
+        echo json_encode(['status' => 'success']);
         exit;
     }
 
@@ -127,9 +124,8 @@ try {
         $categorie_id = $data['categorie_id'] ?? null;
         $sous_categorie_id = $data['sous_categorie_id'] ?? null;
 
-        // Supprimer l'affichage d'erreur sur le format de date
         if (!$date) {
-            $date = date('Y-m-d'); // Utilise la date du jour si aucune n'est fournie
+            $date = date('Y-m-d'); // Utilise la date du jour par défaut
         }
 
         $stmt = $conn->prepare("INSERT INTO transactions (titre, montant, type, date, lieu, description, categorie_id, sous_categorie_id) VALUES (:titre, :montant, :type, :date, :lieu, :description, :categorie_id, :sous_categorie_id)");
@@ -143,12 +139,12 @@ try {
         $stmt->bindParam(':sous_categorie_id', $sous_categorie_id);
         $stmt->execute();
 
-        echo json_encode(['status' => 'success', 'message' => 'Transaction ajoutée']);
+        echo json_encode(['status' => 'success']);
         exit;
     }
 
-    echo json_encode(['status' => 'error', 'message' => 'Méthode de requête non prise en charge']);
 } catch (PDOException $e) {
-    echo json_encode(['status' => 'error', 'message' => 'Erreur de connexion à la base de données : ' . $e->getMessage()]);
+    // Ne rien renvoyer d'explicite pour éviter les pop-ups côté frontend
+    echo json_encode(['status' => 'error']);
     exit;
 }

@@ -42,12 +42,12 @@ function App() {
         try {
             const response = await axios.post('http://localhost:8888/finance-flow/finance-flow/src/api.php', transaction);
             if (response.data.status === 'success') {
-                fetchTransactions();
+                fetchTransactions(); // Actualise les transactions si l'ajout est réussi
             } else {
-                alert(response.data.message);
+                console.warn("Erreur détectée :", response.data.message || "Message d'erreur non défini.");
             }
         } catch (error) {
-            console.error("Erreur lors de l'ajout de la transaction :", error);
+            console.error("Erreur lors de l'ajout de la transaction :", error.message || error);
         }
     };
 
