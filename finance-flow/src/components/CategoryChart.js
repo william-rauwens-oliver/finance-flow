@@ -1,19 +1,43 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pie } from 'react-chartjs-2';
+import axios from 'axios';
 
 function CategoryChart({ transactions, budgets }) {
+    const [categoryNames, setCategoryNames] = useState({}); // Stocke les noms des catégories
+
+    useEffect(() => {
+        const fetchCategoryNames = async () => {
+            try {
+                const response = await axios.get('http://localhost:8888/finance-flow/finance-flow/src/api.php?getCategories=true');
+                const categories = response.data.categories || [];
+                const categoryMap = categories.reduce((acc, category) => {
+                    acc[category.id] = category.nom; // Associe l'ID de catégorie à son nom
+                    return acc;
+                }, {});
+                setCategoryNames(categoryMap);
+            } catch (error) {
+                console.error("Erreur lors de la récupération des noms des catégories :", error);
+            }
+        };
+
+        fetchCategoryNames();
+    }, []);
+
+    // Calculer les données des dépenses par catégorie
     const categoriesData = transactions.reduce((acc, transaction) => {
-        const category = transaction.categorie_id;
-        acc[category] = (acc[category] || 0) + parseFloat(transaction.montant);
+        const categoryId = transaction.categorie_id;
+        acc[categoryId] = (acc[categoryId] || 0) + parseFloat(transaction.montant);
         return acc;
     }, {});
 
-    const labels = Object.keys(categoriesData).map(categoryId => `Catégorie ${categoryId}`);
+    // Construire les labels avec les noms des catégories
+    const labels = Object.keys(categoriesData).map(categoryId => categoryNames[categoryId] || `Catégorie ${categoryId}`);
     const data = Object.values(categoriesData);
+
     const budgetData = Object.keys(categoriesData).map(categoryId => budgets[categoryId] || 0);
 
     const chartData = {
-        labels: labels,
+        labels: labels, // Affiche les noms des catégories
         datasets: [
             {
                 label: 'Dépenses',
@@ -31,7 +55,7 @@ function CategoryChart({ transactions, budgets }) {
 
     return (
         <div>
-            <h2>Répartition des Dépenses et des Revenues par Catégorie</h2>
+            <h2>Répartition des Dépenses par Catégorie</h2>
             <Pie data={chartData} />
         </div>
     );
