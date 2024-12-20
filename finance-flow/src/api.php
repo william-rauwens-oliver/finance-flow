@@ -28,42 +28,6 @@ try {
         exit;
     }
 
-    // Récupération des utilisateurs
-    if (isset($_GET['getUtilisateurs'])) {
-        $stmt = $conn->query("SELECT id, nom, email FROM utilisateurs");
-        echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
-        exit;
-    }
-
-    // Gestion des budgets
-    if (isset($_GET['getBudgets'])) {
-        $stmt = $conn->query("SELECT categorie_id, budget FROM budgets");
-        echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
-        exit;
-    }
-
-    // Ajout ou mise à jour d'un budget
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'updateBudget') {
-        $categoryId = $_POST['categoryId'] ?? null;
-        $budget = $_POST['budget'] ?? null;
-
-        if ($categoryId && $budget !== null) {
-            $stmt = $conn->prepare("SELECT * FROM budgets WHERE categorie_id = :categorie_id");
-            $stmt->execute([':categorie_id' => $categoryId]);
-            $existingBudget = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if ($existingBudget) {
-                $updateStmt = $conn->prepare("UPDATE budgets SET budget = :budget WHERE categorie_id = :categorie_id");
-                $updateStmt->execute([':budget' => $budget, ':categorie_id' => $categoryId]);
-            } else {
-                $insertStmt = $conn->prepare("INSERT INTO budgets (categorie_id, budget) VALUES (:categorie_id, :budget)");
-                $insertStmt->execute([':categorie_id' => $categoryId, ':budget' => $budget]);
-            }
-        }
-        echo json_encode(['status' => 'success']);
-        exit;
-    }
-
     // Récupération des transactions
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $query = "SELECT * FROM transactions WHERE 1=1";
@@ -126,6 +90,43 @@ try {
         $stmt->execute();
 
         echo json_encode(['status' => 'success', 'transaction_id' => $conn->lastInsertId()]);
+        exit;
+    }
+
+    // Mise à jour d'une transaction
+    if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+        $data = json_decode(file_get_contents("php://input"), true);
+        $id = $data['id'] ?? null;
+        $titre = $data['titre'] ?? '';
+        $montant = $data['montant'] ?? 0;
+        $type = $data['type'] ?? '';
+        $date = $data['date'] ?? '';
+        $lieu = $data['lieu'] ?? '';
+        $description = $data['description'] ?? '';
+        $categorie_id = $data['categorie_id'] ?? null;
+        $sous_categorie_id = $data['sous_categorie_id'] ?? null;
+
+        if ($id) {
+            try {
+                $stmt = $conn->prepare("UPDATE transactions SET titre = :titre, montant = :montant, type = :type, date = :date, lieu = :lieu, description = :description, categorie_id = :categorie_id, sous_categorie_id = :sous_categorie_id WHERE id = :id");
+                $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+                $stmt->bindParam(':titre', $titre);
+                $stmt->bindParam(':montant', $montant);
+                $stmt->bindParam(':type', $type);
+                $stmt->bindParam(':date', $date);
+                $stmt->bindParam(':lieu', $lieu);
+                $stmt->bindParam(':description', $description);
+                $stmt->bindParam(':categorie_id', $categorie_id);
+                $stmt->bindParam(':sous_categorie_id', $sous_categorie_id);
+                $stmt->execute();
+
+                echo json_encode(['status' => 'success', 'message' => 'Transaction mise à jour']);
+            } catch (PDOException $e) {
+                echo json_encode(['status' => 'error', 'message' => 'Erreur lors de la mise à jour de la transaction']);
+            }
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'ID de transaction manquant']);
+        }
         exit;
     }
 
