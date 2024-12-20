@@ -28,6 +28,16 @@ try {
         exit;
     }
 
+    // Récupération des utilisateurs pour le partage
+    if (isset($_GET['getUtilisateurs'])) {
+        $usersQuery = "SELECT id, nom, email FROM utilisateurs";
+        $usersStmt = $conn->query($usersQuery);
+        $users = $usersStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode($users);
+        exit;
+    }
+
     // Récupération des transactions
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $query = "SELECT * FROM transactions WHERE 1=1";
@@ -63,7 +73,7 @@ try {
     }
 
     // Ajout d'une transaction
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['shareTransaction'])) {
         $data = json_decode(file_get_contents("php://input"), true);
         $titre = $data['titre'] ?? '';
         $montant = $data['montant'] ?? 0;
@@ -93,6 +103,27 @@ try {
         exit;
     }
 
+    // Partage d'une transaction
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['shareTransaction'])) {
+        $transaction_id = $_POST['transaction_id'] ?? null;
+        $utilisateur_ids = $_POST['utilisateur_ids'] ?? [];
+
+        if (!$transaction_id || empty($utilisateur_ids)) {
+            echo json_encode(['status' => 'error', 'message' => 'Données de partage manquantes']);
+            exit;
+        }
+
+        foreach ($utilisateur_ids as $utilisateur_id) {
+            $stmt = $conn->prepare("INSERT INTO transactions_partagees (transaction_id, utilisateur_id) VALUES (:transaction_id, :utilisateur_id)");
+            $stmt->bindParam(':transaction_id', $transaction_id);
+            $stmt->bindParam(':utilisateur_id', $utilisateur_id);
+            $stmt->execute();
+        }
+
+        echo json_encode(['status' => 'success', 'message' => 'Transaction partagée avec succès']);
+        exit;
+    }
+
     // Mise à jour d'une transaction
     if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
         $data = json_decode(file_get_contents("php://input"), true);
@@ -107,23 +138,19 @@ try {
         $sous_categorie_id = $data['sous_categorie_id'] ?? null;
 
         if ($id) {
-            try {
-                $stmt = $conn->prepare("UPDATE transactions SET titre = :titre, montant = :montant, type = :type, date = :date, lieu = :lieu, description = :description, categorie_id = :categorie_id, sous_categorie_id = :sous_categorie_id WHERE id = :id");
-                $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-                $stmt->bindParam(':titre', $titre);
-                $stmt->bindParam(':montant', $montant);
-                $stmt->bindParam(':type', $type);
-                $stmt->bindParam(':date', $date);
-                $stmt->bindParam(':lieu', $lieu);
-                $stmt->bindParam(':description', $description);
-                $stmt->bindParam(':categorie_id', $categorie_id);
-                $stmt->bindParam(':sous_categorie_id', $sous_categorie_id);
-                $stmt->execute();
+            $stmt = $conn->prepare("UPDATE transactions SET titre = :titre, montant = :montant, type = :type, date = :date, lieu = :lieu, description = :description, categorie_id = :categorie_id, sous_categorie_id = :sous_categorie_id WHERE id = :id");
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->bindParam(':titre', $titre);
+            $stmt->bindParam(':montant', $montant);
+            $stmt->bindParam(':type', $type);
+            $stmt->bindParam(':date', $date);
+            $stmt->bindParam(':lieu', $lieu);
+            $stmt->bindParam(':description', $description);
+            $stmt->bindParam(':categorie_id', $categorie_id);
+            $stmt->bindParam(':sous_categorie_id', $sous_categorie_id);
+            $stmt->execute();
 
-                echo json_encode(['status' => 'success', 'message' => 'Transaction mise à jour']);
-            } catch (PDOException $e) {
-                echo json_encode(['status' => 'error', 'message' => 'Erreur lors de la mise à jour de la transaction']);
-            }
+            echo json_encode(['status' => 'success', 'message' => 'Transaction mise à jour']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'ID de transaction manquant']);
         }
@@ -132,19 +159,15 @@ try {
 
     // Suppression d'une transaction
     if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
-        $input = json_decode(file_get_contents("php://input"), true); // Récupérer les données JSON
+        $input = json_decode(file_get_contents("php://input"), true);
         $id = $input['id'] ?? null;
 
         if ($id) {
-            try {
-                $stmt = $conn->prepare("DELETE FROM transactions WHERE id = :id");
-                $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-                $stmt->execute();
+            $stmt = $conn->prepare("DELETE FROM transactions WHERE id = :id");
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
 
-                echo json_encode(['status' => 'success', 'message' => 'Transaction supprimée avec succès']);
-            } catch (PDOException $e) {
-                echo json_encode(['status' => 'error', 'message' => 'Erreur lors de la suppression de la transaction']);
-            }
+            echo json_encode(['status' => 'success', 'message' => 'Transaction supprimée avec succès']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'ID de transaction manquant']);
         }
