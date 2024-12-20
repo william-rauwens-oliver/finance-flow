@@ -14,6 +14,7 @@ try {
     $conn = new PDO("mysql:host=localhost;dbname=finance-flow", 'root', 'root');
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+    // Récupération des catégories et sous-catégories
     if (isset($_GET['getCategories'])) {
         $categoriesQuery = "SELECT id, nom FROM categories";
         $categoriesStmt = $conn->query($categoriesQuery);
@@ -27,12 +28,14 @@ try {
         exit;
     }
 
+    // Récupération des utilisateurs
     if (isset($_GET['getUtilisateurs'])) {
         $stmt = $conn->query("SELECT id, nom, email FROM utilisateurs");
         echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
         exit;
     }
 
+    // Partage de transactions
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['shareTransaction'])) {
         $transaction_id = $_POST['transaction_id'];
         $utilisateur_ids = $_POST['utilisateur_ids'];
@@ -46,12 +49,14 @@ try {
         exit;
     }
 
+    // Gestion des budgets
     if (isset($_GET['getBudgets'])) {
         $stmt = $conn->query("SELECT categorie_id, budget FROM budgets");
         echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
         exit;
     }
 
+    // Ajout ou mise à jour d'un budget
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'updateBudget') {
         $categoryId = $_POST['categoryId'] ?? null;
         $budget = $_POST['budget'] ?? null;
@@ -76,6 +81,7 @@ try {
         exit;
     }
 
+    // Récupération des transactions
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $query = "SELECT * FROM transactions WHERE 1=1";
         $params = [];
@@ -109,6 +115,7 @@ try {
         exit;
     }
 
+    // Ajout d'une transaction
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data = json_decode(file_get_contents("php://input"), true);
         $titre = $data['titre'] ?? '';
@@ -119,6 +126,11 @@ try {
         $description = $data['description'] ?? '';
         $categorie_id = $data['categorie_id'] ?? null;
         $sous_categorie_id = $data['sous_categorie_id'] ?? null;
+
+        // Supprimer l'affichage d'erreur sur le format de date
+        if (!$date) {
+            $date = date('Y-m-d'); // Utilise la date du jour si aucune n'est fournie
+        }
 
         $stmt = $conn->prepare("INSERT INTO transactions (titre, montant, type, date, lieu, description, categorie_id, sous_categorie_id) VALUES (:titre, :montant, :type, :date, :lieu, :description, :categorie_id, :sous_categorie_id)");
         $stmt->bindParam(':titre', $titre);
@@ -132,49 +144,6 @@ try {
         $stmt->execute();
 
         echo json_encode(['status' => 'success', 'message' => 'Transaction ajoutée']);
-        exit;
-    }
-
-    if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
-        $data = json_decode(file_get_contents("php://input"), true);
-        $id = $data['id'] ?? null;
-        $titre = $data['titre'] ?? '';
-        $montant = $data['montant'] ?? 0;
-        $date = $data['date'] ?? '';
-        $lieu = $data['lieu'] ?? '';
-        $description = $data['description'] ?? '';
-        $categorie_id = $data['categorie_id'] ?? null;
-        $sous_categorie_id = $data['sous_categorie_id'] ?? null;
-
-        if ($id) {
-            $stmt = $conn->prepare("UPDATE transactions SET titre = :titre, montant = :montant, date = :date, lieu = :lieu, description = :description, categorie_id = :categorie_id, sous_categorie_id = :sous_categorie_id WHERE id = :id");
-            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-            $stmt->bindParam(':titre', $titre);
-            $stmt->bindParam(':montant', $montant);
-            $stmt->bindParam(':date', $date);
-            $stmt->bindParam(':lieu', $lieu);
-            $stmt->bindParam(':description', $description);
-            $stmt->bindParam(':categorie_id', $categorie_id);
-            $stmt->bindParam(':sous_categorie_id', $sous_categorie_id);
-            $stmt->execute();
-
-            echo json_encode(['status' => 'success', 'message' => 'Transaction mise à jour']);
-        } else {
-            echo json_encode(['status' => 'error', 'message' => 'ID manquant']);
-        }
-        exit;
-    }
-
-    if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
-        $id = $_GET['id'] ?? null;
-        if ($id) {
-            $stmt = $conn->prepare("DELETE FROM transactions WHERE id = :id");
-            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-            $stmt->execute();
-            echo json_encode(['status' => 'success', 'message' => 'Transaction supprimée']);
-        } else {
-            echo json_encode(['status' => 'error', 'message' => 'ID manquant']);
-        }
         exit;
     }
 
